@@ -4,6 +4,12 @@ const fantasyTeamSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   castaways: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Castaway' }],
   totalPoints: { type: Number, default: 0 },
+  weeklyRoster: [
+    {
+      week: Number,
+      castaways: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Castaway' }],
+    },
+  ],
 });
 
 fantasyTeamSchema.pre('save', function (next) {
