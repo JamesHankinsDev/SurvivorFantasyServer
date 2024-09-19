@@ -26,6 +26,9 @@ app.use('/api/admin', adminRoutes);
 const teamRoutes = require('./routes/teamRoutes');
 app.use('/api/team', teamRoutes);
 
+const scoringRoutes = require('./routes/scoringRoutes');
+app.use('/api/scoring', scoringRoutes);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

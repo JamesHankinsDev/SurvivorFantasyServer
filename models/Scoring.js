@@ -6,6 +6,23 @@ const scoringSchema = new mongoose.Schema({
     ref: 'Castaway',
     required: true,
   },
+  scoringEvent: {
+    type: String,
+    enum: [
+      'VF',
+      'VA',
+      'CW',
+      'IW',
+      'IF',
+      'EL',
+      'TC',
+      'FM',
+      'Thrd',
+      'Scnd',
+      'Frst',
+    ],
+    required: true,
+  },
   points: { type: Number, required: true },
   week: { type: Number, required: true },
 });

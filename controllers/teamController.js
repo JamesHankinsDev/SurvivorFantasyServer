@@ -8,7 +8,7 @@ exports.createTeam = async (req, res) => {
       castaways: [],
     });
     const savedTeam = await newTeam.save();
-    return res.status(201).json(savedTeam);
+    return res.status(200).json(savedTeam);
   } catch (err) {
     return res.status(500).json({ message: 'Error creating team' });
   }
@@ -52,6 +52,7 @@ exports.addCastawayToTeam = async (req, res) => {
 
     return res.status(200).json(team);
   } catch (err) {
+    console.error('could not add castaway to team: ', err);
     return res
       .status(500)
       .json({ message: 'Error adding contestant to team!' });
