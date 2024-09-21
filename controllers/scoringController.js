@@ -1,11 +1,10 @@
 const User = require('../models/User');
 const Scoring = require('../models/Scoring');
+const Castaway = require('../models/Castaway');
 const Team = require('../models/FantasyTeam');
 const { scoringLogic } = require('../utils/scoringLogic');
 
 exports.addScoringRecord = async (req, res) => {
-  console.log('In scoring controller');
-  console.log({ scoringLogic });
   try {
     const { castawayId, scoringEvent, week } = req.body;
     const points = scoringLogic(req.body.scoringEvent);
@@ -17,13 +16,13 @@ exports.addScoringRecord = async (req, res) => {
     });
     const savedScoring = await newScoringEvent.save();
 
-    const fantasyTeams = await Team.find({ castaways: castawayId });
+    const castaway = await Castaway.findById(castawayId);
 
-    // add points to team totals
-    fantasyTeams.forEach(async (team) => {
-      team.totalPoints += points;
-      await team.save();
-    });
+    console.log('------------ castaway ----------', { castaway });
+
+    castaway.scoringEvents.push(savedScoring._id);
+
+    castaway.save();
 
     return res.status(200).json(savedScoring);
   } catch (err) {
@@ -35,7 +34,6 @@ exports.addScoringRecord = async (req, res) => {
 exports.getScoringRecords = async (req, res) => {
   try {
     const scoringEvents = await Scoring.find();
-    console.log(scoringEvents);
     res.status(200).json(scoringEvents);
   } catch (err) {
     console.error(err);
@@ -44,9 +42,19 @@ exports.getScoringRecords = async (req, res) => {
 };
 
 exports.deleteScoringRecord = async (req, res) => {
-  console.log('In method!');
   try {
     const { id } = req.params;
+
+    const scoreToDelete = await Scoring.findById(id);
+
+    const castaway = await Castaway.findById(scoreToDelete.castawayId);
+
+    const index = castaway.scoringEvents.indexOf(id);
+
+    castaway.scoringEvents.splice(index, 1);
+
+    castaway.save();
+
     await Scoring.findByIdAndDelete(id);
     res.status(200).json({ message: 'Scoring Record Deleted' });
   } catch (err) {

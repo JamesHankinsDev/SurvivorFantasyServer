@@ -61,7 +61,7 @@ exports.deleteCastaway = async (req, res) => {
 };
 exports.getAllCastaways = async (req, res) => {
   try {
-    const castaways = await Castaway.find();
+    const castaways = await Castaway.find().populate('scoringEvents');
     res.status(200).json(castaways);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching castaways' });

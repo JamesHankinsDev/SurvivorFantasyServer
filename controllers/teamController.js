@@ -50,7 +50,7 @@ exports.addCastawayToTeam = async (req, res) => {
 
     await team.save();
 
-    return res.status(200).json(team);
+    return res.status(200).json(await team.populate('castaways'));
   } catch (err) {
     console.error('could not add castaway to team: ', err);
     return res
@@ -61,20 +61,28 @@ exports.addCastawayToTeam = async (req, res) => {
 
 exports.getAllTeams = async (req, res) => {
   try {
-    const teams = await Team.find();
-    return res.status(200).json(teams);
+    const teams = await Team.find()
+      .populate('castaways')
+      .populate('userId')
+      .populate('castaways.scoringEvents')
+      .select('-password');
+    return res.status(200).json(await teams);
   } catch (err) {
+    console.error({ getAllTeams: err });
     return res.status(500).json({ message: 'Error fetching teams.' });
   }
 };
 
 exports.getMyTeam = async (req, res) => {
   try {
-    const team = await Team.findOne({ userId: req.user.id });
+    const team = await Team.findOne({ userId: req.user.id })
+      .populate('castaways')
+      .populate('fantasyTribes.castaways');
     if (!team) return res.status(200).json(null);
 
     return res.status(200).json(team);
   } catch (err) {
+    console.error({ getMyTeam: err });
     return res.status(500).json({ message: 'Error finding your team.' });
   }
 };
@@ -99,10 +107,32 @@ exports.dropCastawayFromTeam = async (req, res) => {
 
     await team.save();
 
-    return res.status(200).json(team);
+    return res.status(200).json(await team.populate('castaways'));
   } catch (err) {
     return res
       .status(500)
       .json({ message: 'Error removing contestant to team!' });
+  }
+};
+
+exports.freezeCastawayTeam = async (req, res) => {
+  try {
+    const team = await Team.findOne({ userId: req.user.id });
+    if (!team) return res.status(404).json({ message: 'Team not found!' });
+
+    const week = req.body.targetWeek;
+    const castaways = team.castaways;
+
+    team.fantasyTribes.push({ week, castaways });
+
+    team.save();
+
+    return res
+      .status(200)
+      .json(
+        (await team.populate('castaways')).populate('fantasyTribes.castaways')
+      );
+  } catch (err) {
+    console.error({ freeze: err });
   }
 };
