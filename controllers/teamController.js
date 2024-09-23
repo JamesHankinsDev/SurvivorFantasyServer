@@ -73,8 +73,9 @@ exports.addCastawayToTeam = async (req, res) => {
 exports.getAllTeams = async (req, res) => {
   try {
     const teams = await Team.find()
-      .populate('castaways')
       .populate('userId')
+      .select('-password')
+      .populate('castaways')
       .populate({
         path: 'castaways',
         populate: {
@@ -82,7 +83,17 @@ exports.getAllTeams = async (req, res) => {
           model: 'Scoring',
         },
       })
-      .select('-password');
+      .populate({
+        path: 'fantasyTribes',
+        populate: {
+          path: 'castaways',
+          model: 'Castaway',
+          populate: {
+            path: 'scoringEventIds',
+            model: 'Scoring',
+          },
+        },
+      });
     return res.status(200).json(await teams);
   } catch (err) {
     console.error({ getAllTeams: err });
@@ -99,6 +110,17 @@ exports.getMyTeam = async (req, res) => {
         populate: {
           path: 'scoringEventIds',
           model: 'Scoring',
+        },
+      })
+      .populate({
+        path: 'fantasyTribes',
+        populate: {
+          path: 'castaways',
+          model: 'Castaway',
+          populate: {
+            path: 'scoringEventIds',
+            model: 'Scoring',
+          },
         },
       });
     // .populate('fantasyTribes.castaways');
@@ -166,7 +188,13 @@ exports.freezeCastawayTeam = async (req, res) => {
 
     return res.status(200).json(
       (await team.populate('castaways'))
-        .populate('fantasyTribes.castaways')
+        .populate({
+          path: 'fantasyTribes',
+          poppulate: {
+            path: 'castaways',
+            model: 'Castaway',
+          },
+        })
         .populate({
           path: 'castaways',
           populate: {
