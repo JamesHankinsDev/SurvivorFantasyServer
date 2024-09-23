@@ -27,8 +27,10 @@ exports.createCastaway = async (req, res) => {
   try {
     const newCastaway = new Castaway({ name, tribe, season, imageUrl });
     const savedCastaway = await newCastaway.save();
+
     res.status(201).json(savedCastaway);
   } catch (err) {
+    console.error('Error creating castaway: ', { err });
     res.status(500).json({ message: 'Error creating castaway' });
   }
 };
@@ -61,9 +63,10 @@ exports.deleteCastaway = async (req, res) => {
 };
 exports.getAllCastaways = async (req, res) => {
   try {
-    const castaways = await Castaway.find().populate('scoringEvents');
+    const castaways = await Castaway.find().populate('scoringEventIds');
     res.status(200).json(castaways);
   } catch (err) {
+    console.error('Error fetching castaways: ', { err });
     res.status(500).json({ message: 'Error fetching castaways' });
   }
 };

@@ -26,6 +26,7 @@ exports.deleteTeam = async (req, res) => {
 exports.addCastawayToTeam = async (req, res) => {
   try {
     const team = await Team.findOne({ userId: req.user.id });
+
     if (!team) return res.status(404).json({ message: 'Team not found!' });
 
     if (team.castaways.length >= 5) {
@@ -50,7 +51,17 @@ exports.addCastawayToTeam = async (req, res) => {
 
     await team.save();
 
-    return res.status(200).json(await team.populate('castaways'));
+    const retTeam = await Team.findOne({ userId: req.user.id })
+      .populate('castaways')
+      .populate({
+        path: 'castaways',
+        populate: {
+          path: 'scoringEventIds',
+          model: 'Scoring',
+        },
+      });
+
+    return res.status(200).json(retTeam);
   } catch (err) {
     console.error('could not add castaway to team: ', err);
     return res
@@ -64,7 +75,13 @@ exports.getAllTeams = async (req, res) => {
     const teams = await Team.find()
       .populate('castaways')
       .populate('userId')
-      .populate('castaways.scoringEvents')
+      .populate({
+        path: 'castaways',
+        populate: {
+          path: 'scoringEventIds',
+          model: 'Scoring',
+        },
+      })
       .select('-password');
     return res.status(200).json(await teams);
   } catch (err) {
@@ -77,7 +94,14 @@ exports.getMyTeam = async (req, res) => {
   try {
     const team = await Team.findOne({ userId: req.user.id })
       .populate('castaways')
-      .populate('fantasyTribes.castaways');
+      .populate({
+        path: 'castaways',
+        populate: {
+          path: 'scoringEventIds',
+          model: 'Scoring',
+        },
+      });
+    // .populate('fantasyTribes.castaways');
     if (!team) return res.status(200).json(null);
 
     return res.status(200).json(team);
@@ -90,6 +114,7 @@ exports.getMyTeam = async (req, res) => {
 exports.dropCastawayFromTeam = async (req, res) => {
   try {
     const team = await Team.findOne({ userId: req.user.id });
+
     if (!team) return res.status(404).json({ message: 'Team not found!' });
 
     if (team.castaways.length === 0) {
@@ -97,6 +122,7 @@ exports.dropCastawayFromTeam = async (req, res) => {
     }
 
     const targetId = req.params.castawayId;
+
     const castawayIndex = team.castaways.indexOf(targetId);
 
     if (castawayIndex === -1) {
@@ -107,8 +133,19 @@ exports.dropCastawayFromTeam = async (req, res) => {
 
     await team.save();
 
-    return res.status(200).json(await team.populate('castaways'));
+    const retTeam = await Team.findOne({ userId: req.user.id })
+      .populate('castaways')
+      .populate({
+        path: 'castaways',
+        populate: {
+          path: 'scoringEventIds',
+          model: 'Scoring',
+        },
+      });
+
+    return res.status(200).json(retTeam);
   } catch (err) {
+    console.error('Error removing castaway', { err });
     return res
       .status(500)
       .json({ message: 'Error removing contestant to team!' });
@@ -127,11 +164,17 @@ exports.freezeCastawayTeam = async (req, res) => {
 
     team.save();
 
-    return res
-      .status(200)
-      .json(
-        (await team.populate('castaways')).populate('fantasyTribes.castaways')
-      );
+    return res.status(200).json(
+      (await team.populate('castaways'))
+        .populate('fantasyTribes.castaways')
+        .populate({
+          path: 'castaways',
+          populate: {
+            path: 'scoringEventIds',
+            model: 'Scoring',
+          },
+        })
+    );
   } catch (err) {
     console.error({ freeze: err });
   }

@@ -6,10 +6,11 @@ const castawaySchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'eliminated'], default: 'active' },
   season: { type: Number, required: true },
   imageUrl: { type: String },
-  scoringEvents: [
+  scoringEventIds: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Scoring',
+      default: [],
     },
   ],
 });

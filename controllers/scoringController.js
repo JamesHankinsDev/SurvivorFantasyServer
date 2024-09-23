@@ -7,6 +7,7 @@ const { scoringLogic } = require('../utils/scoringLogic');
 exports.addScoringRecord = async (req, res) => {
   try {
     const { castawayId, scoringEvent, week } = req.body;
+
     const points = scoringLogic(req.body.scoringEvent);
     const newScoringEvent = new Scoring({
       castawayId: castawayId,
@@ -18,9 +19,7 @@ exports.addScoringRecord = async (req, res) => {
 
     const castaway = await Castaway.findById(castawayId);
 
-    console.log('------------ castaway ----------', { castaway });
-
-    castaway.scoringEvents.push(savedScoring._id);
+    castaway.scoringEventIds.push(savedScoring._id);
 
     castaway.save();
 
@@ -33,7 +32,7 @@ exports.addScoringRecord = async (req, res) => {
 
 exports.getScoringRecords = async (req, res) => {
   try {
-    const scoringEvents = await Scoring.find();
+    const scoringEvents = await Scoring.find().populate('castawayId');
     res.status(200).json(scoringEvents);
   } catch (err) {
     console.error(err);
@@ -49,9 +48,9 @@ exports.deleteScoringRecord = async (req, res) => {
 
     const castaway = await Castaway.findById(scoreToDelete.castawayId);
 
-    const index = castaway.scoringEvents.indexOf(id);
+    const index = castaway.scoringEventIds.indexOf(id);
 
-    castaway.scoringEvents.splice(index, 1);
+    castaway.scoringEventIds.splice(index, 1);
 
     castaway.save();
 
