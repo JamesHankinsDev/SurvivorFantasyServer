@@ -174,35 +174,23 @@ exports.dropCastawayFromTeam = async (req, res) => {
   }
 };
 
-exports.freezeCastawayTeam = async (req, res) => {
+exports.freezeCastawayTeams = async (req, res) => {
   try {
-    const team = await Team.findOne({ userId: req.user.id });
-    if (!team) return res.status(404).json({ message: 'Team not found!' });
+    const teams = await Team.find();
+    if (!teams || teams.length === 0)
+      return res.status(404).json({ message: 'Teams not found!' });
 
     const week = req.body.targetWeek;
-    const castaways = team.castaways;
 
-    team.fantasyTribes.push({ week, castaways });
+    teams.forEach((team) => {
+      const castaways = team.castaways;
 
-    team.save();
+      team.fantasyTribes.push({ week, castaways });
 
-    return res.status(200).json(
-      (await team.populate('castaways'))
-        .populate({
-          path: 'fantasyTribes',
-          poppulate: {
-            path: 'castaways',
-            model: 'Castaway',
-          },
-        })
-        .populate({
-          path: 'castaways',
-          populate: {
-            path: 'scoringEventIds',
-            model: 'Scoring',
-          },
-        })
-    );
+      team.save();
+    });
+
+    return res.status(200).json({ message: 'Teams saved successfully' });
   } catch (err) {
     console.error({ freeze: err });
   }

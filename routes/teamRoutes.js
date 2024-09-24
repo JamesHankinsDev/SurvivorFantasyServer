@@ -7,7 +7,7 @@ const {
   getMyTeam,
   createTeam,
   deleteTeam,
-  freezeCastawayTeam,
+  freezeCastawayTeams,
 } = require('../controllers/teamController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -23,6 +23,6 @@ router.post('/drop/:castawayId', authMiddleware, dropCastawayFromTeam);
 
 router.delete('/delete', authMiddleware, deleteTeam);
 
-router.post('/freeze', authMiddleware, freezeCastawayTeam);
+router.post('/freeze', authMiddleware, freezeCastawayTeams);
 
 module.exports = router;
