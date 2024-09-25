@@ -55,9 +55,9 @@ exports.deleteScoringRecord = async (req, res) => {
     castaway.save();
 
     await Scoring.findByIdAndDelete(id);
-    res.status(200).json({ message: 'Scoring Record Deleted' });
+    return res.status(200).json({ message: 'Scoring Record Deleted' });
   } catch (err) {
     console.error({ deleting: err });
-    res.status(500).json({ message: 'Error deleting Scoring' });
+    return res.status(500).json({ message: 'Error deleting Scoring' });
   }
 };
