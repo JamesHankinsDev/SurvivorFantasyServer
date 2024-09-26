@@ -8,13 +8,13 @@ exports.register = async (req, res) => {
     const newUser = new User({ username, password, role });
     await newUser.save();
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
     });
 
-    res.status(200).json({ token, role: user.role, name: username });
+    res.status(200).json({ token, role, name: username });
   } catch (err) {
-    console.error('error is: ', err);
+    console.error('RegisterError: ', err);
     res.status(400).json({ error: 'Error registering user' });
   }
 };
@@ -25,12 +25,14 @@ exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ username });
     if (!user) {
+      console.error({ message: 'No username found' });
       return res.status(400).json({ error: 'Invalid username or password!' });
     }
 
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
+      console.error({ message: 'Password Incorrect' });
       return res.status(400).json({ error: 'Invalid username or password' });
     }
 
@@ -40,6 +42,7 @@ exports.login = async (req, res) => {
 
     res.status(200).json({ token, role: user.role, name: username });
   } catch (err) {
+    console.error({ LoginError: err });
     res.status(500).json({ error: 'Login error' });
   }
 };
