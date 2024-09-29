@@ -9,7 +9,7 @@ const roleMiddleware = (requiredRole) => {
 
       next();
     } catch (err) {
-      res.status(401).json({ message: 'Insufficient User Role' });
+      return res.status(401).json({ message: 'Insufficient User Role' });
     }
   };
 };

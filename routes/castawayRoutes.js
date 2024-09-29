@@ -1,13 +1,12 @@
-// TO DEPRECATE AFTER MIGRATION
-
 const express = require('express');
 const router = express.Router();
 const {
   createCastaway,
   updateCastaway,
+  setScoreForCastaway,
   deleteCastaway,
   getAllCastaways,
-} = require('../controllers/adminController');
+} = require('../controllers/castawayController');
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
 

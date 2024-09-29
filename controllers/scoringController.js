@@ -33,10 +33,10 @@ exports.addScoringRecord = async (req, res) => {
 exports.getScoringRecords = async (req, res) => {
   try {
     const scoringEvents = await Scoring.find().populate('castawayId');
-    res.status(200).json(scoringEvents);
+    return res.status(200).json(scoringEvents);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching scoring' });
+    return res.status(500).json({ message: 'Error fetching scoring' });
   }
 };
 
