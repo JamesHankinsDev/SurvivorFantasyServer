@@ -33,6 +33,7 @@ exports.addScoringRecord = async (req, res) => {
 exports.getScoringRecords = async (req, res) => {
   try {
     const scoringEvents = await Scoring.find().populate('castawayId');
+    console.log({ ScoringEvents: scoringEvents });
     return res.status(200).json(scoringEvents);
   } catch (err) {
     console.error(err);
