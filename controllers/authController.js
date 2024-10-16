@@ -32,11 +32,12 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { username, password } = req.body;
+  let { username, password } = req.body;
 
   try {
     let user = await User.findOne({ username });
     if (!user) {
+      username = username.toLowerCase();
       user = await User.findOne({ email: username });
     }
     if (!user) {
